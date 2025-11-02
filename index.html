@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSS Pulse - Modern RSS Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .feed-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .feed-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            min-width: 300px;
+        }
+
+        .feed-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .preset-feeds {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #495057;
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+
+        .preset-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .search-bar {
+            margin-top: 15px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .feeds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .feed-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .feed-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feed-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .feed-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .feed-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .feed-items {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .feed-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+
+        .feed-item:hover {
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            padding-left: 10px;
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+
+        .feed-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .item-title:hover {
+            color: #667eea;
+        }
+
+        .item-meta {
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .item-description {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px solid rgba(220, 53, 69, 0.3);
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .success {
+            background: rgba(40, 167, 69, 0.1);
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .feed-input {
+                flex-direction: column;
+            }
+            
+            .feed-input input {
+                min-width: auto;
+            }
+            
+            .feeds-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-rss"></i> RSS Pulse</h1>
+            <p>Modern RSS Dashboard - Real-time feed aggregation</p>
+        </div>
+
+        <div class="controls">
+            <div class="feed-input">
+                <input type="url" id="feedUrl" placeholder="Enter RSS feed URL (e.g., https://feeds.feedburner.com/oreilly/radar)">
+                <button class="btn btn-primary" onclick="addFeed()">
+                    <i class="fas fa-plus"></i> Add Feed
+                </button>
+                <button class="btn btn-primary" onclick="refreshAll()">
+                    <i class="fas fa-sync-alt"></i> Refresh All
+                </button>
+            </div>
+            
+            <div class="preset-feeds">
+                <button class="btn preset-btn" onclick="addPresetFeed('https://feeds.feedburner.com/oreilly/radar')">O'Reilly Radar</button>
+                <button class="btn preset-btn" onclick="addPresetFeed('https://rss.cnn.com/rss/edition.rss')">CNN</button>
+                <button class="btn preset-btn" onclick="addPresetFeed('https://feeds.feedburner.com/TechCrunch')">TechCrunch</button>
+                <button class="btn preset-btn" onclick="addPresetFeed('https://www.reddit.com/r/programming/.rss')">r/programming</button>
+                <button class="btn preset-btn" onclick="addPresetFeed('https://hnrss.org/frontpage')">Hacker News</button>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search articles..." oninput="filterArticles()">
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <i class="fas fa-rss"></i>
+                <h3 id="feedCount">0</h3>
+                <p>Active Feeds</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-newspaper"></i>
+                <h3 id="articleCount">0</h3>
+                <p>Total Articles</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3 id="lastUpdate">Never</h3>
+                <p>Last Updated</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-eye"></i>
+                <h3 id="visibleCount">0</h3>
+                <p>Visible Articles</p>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <i class="fas fa-spinner"></i>
+            <div>Loading RSS feeds...</div>
+        </div>
+
+        <div id="feedsContainer" class="feeds-grid"></div>
+    </div>
+
+    <script>
+        let feeds = [];
+        let allArticles = [];
+
+        async function addFeed() {
+            const url = document.getElementById('feedUrl').value.trim();
+            if (!url) {
+                alert('Please enter a valid RSS feed URL');
+                return;
+            }
+
+            if (feeds.some(feed => feed.url === url)) {
+                alert('This feed is already added');
+                return;
+            }
+
+            await fetchFeed(url);
+            document.getElementById('feedUrl').value = '';
+        }
+
+        function addPresetFeed(url) {
+            document.getElementById('feedUrl').value = url;
+            addFeed();
+        }
+
+        async function fetchFeed(url) {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`/api/rss?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const feed = {
+                    url: url,
+                    title: data.title || 'Unknown Feed',
+                    description: data.description || '',
+                    items: data.items || []
+                };
+
+                feeds.push(feed);
+                allArticles.push(...feed.items.map(item => ({...item, feedTitle: feed.title})));
+                
+                updateStats();
+                renderFeeds();
+                
+                showMessage(`Successfully added ${feed.title}`, 'success');
+            } catch (error) {
+                console.error('Error fetching feed:', error);
+                showMessage(`Error loading feed: ${error.message}`, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function refreshAll() {
+            if (feeds.length === 0) {
+                alert('No feeds to refresh. Add some feeds first!');
+                return;
+            }
+
+            showLoading(true);
+            const urls = feeds.map(feed => feed.url);
+            feeds = [];
+            allArticles = [];
+
+            for (const url of urls) {
+                await fetchFeed(url);
+            }
+        }
+
+        function renderFeeds() {
+            const container = document.getElementById('feedsContainer');
+            container.innerHTML = '';
+
+            feeds.forEach(feed => {
+                const feedCard = document.createElement('div');
+                feedCard.className = 'feed-card';
+                
+                const feedIcon = feed.title.charAt(0).toUpperCase();
+                
+                feedCard.innerHTML = `
+                    <div class="feed-header">
+                        <div class="feed-icon">${feedIcon}</div>
+                        <div>
+                            <div class="feed-title">${feed.title}</div>
+                            <div style="font-size: 0.9rem; color: #666;">${feed.items.length} articles</div>
+                        </div>
+                    </div>
+                    <div class="feed-items">
+                        ${feed.items.slice(0, 10).map(item => `
+                            <div class="feed-item">
+                                <a href="${item.link}" target="_blank" class="item-title">${item.title}</a>
+                                <div class="item-meta">
+                                    <span><i class="fas fa-calendar"></i> ${formatDate(item.pubDate)}</span>
+                                    ${item.author ? `<span><i class="fas fa-user"></i> ${item.author}</span>` : ''}
+                                </div>
+                                ${item.description ? `<div class="item-description">${truncateText(item.description, 150)}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(feedCard);
+            });
+        }
+
+        function filterArticles() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const feedCards = document.querySelectorAll('.feed-card');
+            let visibleCount = 0;
+
+            feedCards.forEach(card => {
+                const items = card.querySelectorAll('.feed-item');
+                let hasVisibleItems = false;
+
+                items.forEach(item => {
+                    const title = item.querySelector('.item-title').textContent.toLowerCase();
+                    const description = item.querySelector('.item-description')?.textContent.toLowerCase() || '';
+                    
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        item.style.display = 'block';
+                        hasVisibleItems = true;
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                card.style.display = hasVisibleItems ? 'block' : 'none';
+            });
+
+            document.getElementById('visibleCount').textContent = visibleCount;
+        }
+
+        function updateStats() {
+            document.getElementById('feedCount').textContent = feeds.length;
+            document.getElementById('articleCount').textContent = allArticles.length;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            document.getElementById('visibleCount').textContent = allArticles.length;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            const cleanText = text.replace(/<[^>]*>/g, '');
+            return cleanText.length > maxLength ? cleanText.substring(0, maxLength) + '...' : cleanText;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            
+            const controls = document.querySelector('.controls');
+            controls.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            if (feeds.length > 0) {
+                refreshAll();
+            }
+        }, 300000);
+
+        // Load some default feeds on startup
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addPresetFeed('https://feeds.feedburner.com/oreilly/radar');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
