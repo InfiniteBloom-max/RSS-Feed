@@ -15,6 +15,10 @@
 
 </div>
 
+<br/>
+
+![RSS Pulse Dashboard](screenshots/img.png)
+
 ---
 
 ## What is RSS Pulse?
